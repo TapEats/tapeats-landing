@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Color Palette */
+  --black: #151611;
+  --dark-gray: #1A1A1A;
+  --gray: #222222;
+  --mint: #D0F0C0;
+  --mint-darker: #b8e0a2;
+  --off-white: #EEEFED;
+  --muted: #999999;
+  
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 8rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--black);
+  color: var(--off-white);
+  font-family: theme('fontFamily.primary');
+  overflow-x: hidden;
+  position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: theme('fontFamily.heading');
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Custom Cursor Styles - Made more responsive */
+* {
+  cursor: none !important;
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background-color: var(--mint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  /* Reduced transition for immediate response */
+  transition: transform 0.05s linear;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+.cursor-follower {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--mint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.6;
+  /* Slightly longer transition for trailing effect */
+  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+  will-change: transform;
+}
+
+.clicking {
+  transform: scale(0.8) !important;
+}
+
+a:hover ~ .custom-cursor,
+button:hover ~ .custom-cursor,
+input:hover ~ .custom-cursor,
+textarea:hover ~ .custom-cursor {
+  transform: scale(1.5);
+}
+
+a:hover ~ .cursor-follower,
+button:hover ~ .cursor-follower,
+input:hover ~ .cursor-follower,
+textarea:hover ~ .cursor-follower {
+  transform: scale(1.5);
+  opacity: 0.3;
+}
+
+/* End Custom Cursor Styles */
+
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(26, 26, 26, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 26, 26, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+.accent-gradient {
+  position: absolute;
+  width: 80vw;
+  height: 80vh;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(208, 240, 192, 0.1) 0%, rgba(208, 240, 192, 0) 70%);
+  filter: blur(60px);
+  z-index: -1;
+}
+
+.accent-top-right {
+  top: -40vh;
+  right: -20vw;
+}
+
+.accent-bottom-left {
+  bottom: -40vh;
+  left: -20vw;
+}
+
+.section-spacing {
+  @apply py-24;
+}
+
+@media (max-width: 768px) {
+  .section-spacing {
+    @apply py-16;
+  }
+}
+
+html, body {
+  height: 100%;
+}
+
+#__next {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,7 +1,10 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { sendEmail } from '../../utils/emailjs';
+import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 export const Contact: FC = () => {
+  const formRef = useRef<HTMLFormElement>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -10,6 +13,7 @@ export const Contact: FC = () => {
   });
   
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -19,25 +23,59 @@ export const Contact: FC = () => {
     }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('submitting');
     
-    // Simulate form submission
-    setTimeout(() => {
-      setFormStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
+    try {
+      // Prepare the template parameters based on your EmailJS template
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        reply_to: formData.email,
+      };
       
-      // Reset form status after a delay
+      // Send the email using EmailJS
+      const { success, error } = await sendEmail(templateParams);
+      
+      if (success) {
+        setFormStatus('success');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        
+        // Reset form status after 5 seconds
+        setTimeout(() => {
+          setFormStatus('idle');
+        }, 5000);
+      } else {
+        setFormStatus('error');
+        setErrorMessage('There was an error sending your message. Please try again later.');
+        
+        // Reset error status after 5 seconds
+        setTimeout(() => {
+          setFormStatus('idle');
+          setErrorMessage('');
+        }, 5000);
+      }
+    } catch (error) {
+      setFormStatus('error');
+      setErrorMessage('There was an error sending your message. Please try again later.');
+      
+      console.error('Error submitting form:', error);
+      
+      // Reset error status after 5 seconds
       setTimeout(() => {
         setFormStatus('idle');
+        setErrorMessage('');
       }, 5000);
-    }, 1500);
+    }
   };
 
   return (
@@ -47,7 +85,7 @@ export const Contact: FC = () => {
           className="bg-gradient-to-br from-darkGray/80 to-black/80 backdrop-blur-lg rounded-2xl p-8 md:p-16 border border-white/5 relative overflow-hidden"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: false, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
           {/* Background accent */}
@@ -59,7 +97,7 @@ export const Contact: FC = () => {
               className="text-4xl md:text-5xl font-heading mb-6 text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               Get in Touch
@@ -69,7 +107,7 @@ export const Contact: FC = () => {
               className="text-lg text-muted mb-12 text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               Have questions about TapEats? We're here to help! Connect with our team for expert assistance.
@@ -79,12 +117,12 @@ export const Contact: FC = () => {
               className="grid grid-cols-1 md:grid-cols-2 gap-12"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               {/* Contact Form */}
               <div>
-                <form onSubmit={handleSubmit}>
+                <form ref={formRef} onSubmit={handleSubmit}>
                   <div className="mb-6">
                     <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
                     <input
@@ -96,6 +134,7 @@ export const Contact: FC = () => {
                       required
                       className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg focus:outline-none focus:border-mint transition-colors"
                       placeholder="Your name"
+                      disabled={formStatus === 'submitting'}
                     />
                   </div>
                   
@@ -110,6 +149,7 @@ export const Contact: FC = () => {
                       required
                       className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg focus:outline-none focus:border-mint transition-colors"
                       placeholder="your@email.com"
+                      disabled={formStatus === 'submitting'}
                     />
                   </div>
                   
@@ -122,6 +162,7 @@ export const Contact: FC = () => {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg focus:outline-none focus:border-mint transition-colors"
+                      disabled={formStatus === 'submitting'}
                     >
                       <option value="">Select a subject</option>
                       <option value="Sales Inquiry">Sales Inquiry</option>
@@ -142,6 +183,7 @@ export const Contact: FC = () => {
                       rows={5}
                       className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg focus:outline-none focus:border-mint transition-colors resize-none"
                       placeholder="How can we help you?"
+                      disabled={formStatus === 'submitting'}
                     ></textarea>
                   </div>
                   
@@ -161,7 +203,7 @@ export const Contact: FC = () => {
                   
                   {formStatus === 'error' && (
                     <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-center">
-                      There was an error sending your message. Please try again.
+                      {errorMessage || 'There was an error sending your message. Please try again.'}
                     </div>
                   )}
                 </form>
@@ -175,38 +217,31 @@ export const Contact: FC = () => {
                   <div className="space-y-6">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-mint/10 rounded-lg flex items-center justify-center text-mint flex-shrink-0 mt-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
+                        <Phone className="w-5 h-5" />
                       </div>
                       <div>
                         <h4 className="text-lg font-medium">Phone</h4>
-                        <p className="text-muted">+1 (555) 123-4567</p>
+                        <p className="text-muted">+91 9510320237</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-mint/10 rounded-lg flex items-center justify-center text-mint flex-shrink-0 mt-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
+                        <Mail className="w-5 h-5" />
                       </div>
                       <div>
                         <h4 className="text-lg font-medium">Email</h4>
-                        <p className="text-muted">support@tapeats.com</p>
+                        <p className="text-muted">supatel5678.90@gmail.com</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-mint/10 rounded-lg flex items-center justify-center text-mint flex-shrink-0 mt-1">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                          <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        </svg>
+                        <MapPin className="w-5 h-5" />
                       </div>
                       <div>
                         <h4 className="text-lg font-medium">Address</h4>
-                        <p className="text-muted">123 Tech Plaza, San Francisco, CA 94107</p>
+                        <p className="text-muted">Vadodara, Gujarat</p>
                       </div>
                     </div>
                   </div>
@@ -217,28 +252,16 @@ export const Contact: FC = () => {
                   <h3 className="text-xl font-bold mb-6">Connect With Us</h3>
                   <div className="flex gap-4">
                     <a href="#" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-mint hover:text-black transition-all hover:-translate-y-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                      </svg>
+                      <Facebook className="w-5 h-5" />
                     </a>
                     <a href="#" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-mint hover:text-black transition-all hover:-translate-y-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                      </svg>
+                      <Twitter className="w-5 h-5" />
                     </a>
                     <a href="#" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-mint hover:text-black transition-all hover:-translate-y-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></rect>
-                        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></line>
-                      </svg>
+                      <Instagram className="w-5 h-5" />
                     </a>
                     <a href="#" className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-mint hover:text-black transition-all hover:-translate-y-1">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                        <rect width="4" height="12" x="2" y="9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></rect>
-                        <circle cx="4" cy="4" r="2" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></circle>
-                      </svg>
+                      <Linkedin className="w-5 h-5" />
                     </a>
                   </div>
                 </div>

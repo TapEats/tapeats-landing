@@ -82,13 +82,14 @@ export const Hero = () => {
               <Button 
                 size="lg" 
                 className="group"
+                onClick={() => window.location.href = "#contact"}
               >
                 Get Started 
                 <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
               </Button>
-              <Button variant="secondary" size="lg">Explore Features</Button>
+              <Button variant="secondary" size="lg" onClick={() => window.location.href = "#features"}>Explore Features</Button>
             </motion.div>
 
             <motion.div

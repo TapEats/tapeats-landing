@@ -39,7 +39,7 @@ export const Navbar = () => {
               </div>
               
               <Link 
-                href="#download" 
+                href="#contact" 
                 className="bg-mint hover:bg-mint/90 text-black font-medium py-2.5 px-5 rounded-full transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-mint/20"
               >
                 Get Started

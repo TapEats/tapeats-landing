@@ -1,3 +1,4 @@
+// src/pages/index.tsx
 import Head from 'next/head';
 import { Hero } from '../components/sections/Hero';
 import { Features } from '../components/sections/Features';
@@ -6,6 +7,7 @@ import { Process } from '../components/sections/Process';
 import { Counter } from '../components/sections/Counter';
 import { Testimonials } from '../components/sections/Testimonials';
 import { CTA } from '../components/sections/CTA';
+import { Contact } from '@/components/sections/Contacts';
 
 export default function Home() {
   return (
@@ -22,7 +24,8 @@ export default function Home() {
         <Process />
         <Counter />
         <Testimonials />
-        <CTA />
+        <Contact />
+        {/* <CTA /> */}
       </main>
     </>
   );

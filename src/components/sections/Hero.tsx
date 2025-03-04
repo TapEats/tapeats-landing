@@ -1,18 +1,26 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, useScroll, useTransform } from 'framer-motion';
 import { Button } from '../ui/Button';
 
 export const Hero = () => {
   const controls = useAnimation();
   
+  // Start animation immediately on component mount
   useEffect(() => {
     controls.start('visible');
   }, [controls]);
 
+  // Scroll-linked animations - only for opacity, not position
+  const { scrollY } = useScroll();
+  const contentOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+
   const containerVariants = {
-    hidden: {},
+    hidden: {
+      opacity: 1 // Start visible to avoid the blank initial state
+    },
     visible: {
+      opacity: 1,
       transition: {
         staggerChildren: 0.1
       }
@@ -20,7 +28,10 @@ export const Hero = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { 
+      opacity: 0, 
+      y: 30 
+    },
     visible: { 
       opacity: 1, 
       y: 0,
@@ -35,12 +46,13 @@ export const Hero = () => {
     <section className="min-h-screen pt-32 relative flex items-center" id="hero">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* Hero Text Content */}
+          {/* Hero Text Content - Fades on scroll but doesn't move up */}
           <motion.div
             className="lg:w-1/2"
             variants={containerVariants}
             initial="hidden"
-            animate={controls}
+            animate="visible"
+            style={{ opacity: contentOpacity }}
           >
             <motion.span
               className="inline-block py-1.5 px-4 rounded-full text-sm font-medium mb-6 bg-mint/10 text-mint border border-mint/20 backdrop-blur-sm"
@@ -71,7 +83,7 @@ export const Hero = () => {
                 size="lg" 
                 className="group"
               >
-                Download Now 
+                Get Started 
                 <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
@@ -98,8 +110,11 @@ export const Hero = () => {
             </motion.div>
           </motion.div>
           
-          {/* Hero App Screenshots */}
-          <div className="lg:w-1/2 relative h-[550px] w-full">
+          {/* Hero App Screenshots - With scroll-based fade */}
+          <motion.div 
+            className="lg:w-1/2 relative h-[550px] w-full"
+            style={{ opacity: contentOpacity }}
+          >
             <motion.div
               className="absolute bottom-0 left-[5%] w-64 h-[480px] bg-darkGray rounded-[40px] overflow-hidden shadow-xl shadow-black/30 z-20"
               initial={{ opacity: 0, y: 40, rotate: -8 }}
@@ -164,7 +179,7 @@ export const Hero = () => {
                 <div className="text-sm font-medium">$12.8K</div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
       
@@ -174,6 +189,7 @@ export const Hero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.5 }}
+        style={{ opacity: contentOpacity }}
       >
         <div className="w-8 h-14 border-2 border-muted/20 rounded-full mb-2 relative">
           <motion.div 

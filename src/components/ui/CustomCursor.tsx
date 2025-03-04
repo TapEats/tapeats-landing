@@ -1,69 +1,110 @@
-// src/components/ui/CustomCursor.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [followerPosition, setFollowerPosition] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
+  const cursorOuterRef = useRef(null);
+  const cursorInnerRef = useRef(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
 
   useEffect(() => {
-    // Set mounted state to true once component mounts on client
     setIsMounted(true);
-    
-    const mouseMoveHandler = (event: MouseEvent) => {
-      // Immediately update the main cursor for responsive movement
-      setPosition({ x: event.clientX, y: event.clientY });
+
+    // Track cursor position with smooth animation
+    const moveCursor = (e) => {
+      const { clientX, clientY } = e;
       
-      // Follower with minimal delay for smooth effect without being sluggish
-      setTimeout(() => {
-        setFollowerPosition({ x: event.clientX, y: event.clientY });
-      }, 10); // Reduced from 50ms to 10ms for more responsive movement
+      // Use requestAnimationFrame for smoother movement
+      requestAnimationFrame(() => {
+        if (cursorOuterRef.current && cursorInnerRef.current) {
+          // Apply positions via style 
+          cursorOuterRef.current.style.left = `${clientX}px`;
+          cursorOuterRef.current.style.top = `${clientY}px`;
+          
+          cursorInnerRef.current.style.left = `${clientX}px`;
+          cursorInnerRef.current.style.top = `${clientY}px`;
+        }
+      });
     };
 
-    const mouseDownHandler = () => setIsClicking(true);
-    const mouseUpHandler = () => setIsClicking(false);
-    
-    // Show cursor when mouse moves
-    const mouseEnterHandler = () => setIsVisible(true);
-    // Hide cursor when mouse leaves the window
-    const mouseLeaveHandler = () => setIsVisible(false);
+    // Add click animations
+    const handleMouseDown = () => setIsClicking(true);
+    const handleMouseUp = () => setIsClicking(false);
 
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mousedown', mouseDownHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-    document.addEventListener('mouseenter', mouseEnterHandler);
-    document.addEventListener('mouseleave', mouseLeaveHandler);
+    // Add event listeners
+    document.addEventListener('mousemove', moveCursor);
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', mouseMoveHandler);
-      document.removeEventListener('mousedown', mouseDownHandler);
-      document.removeEventListener('mouseup', mouseUpHandler);
-      document.removeEventListener('mouseenter', mouseEnterHandler);
-      document.removeEventListener('mouseleave', mouseLeaveHandler);
+      document.removeEventListener('mousemove', moveCursor);
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
 
-  // Don't render anything on the server or before mounting
+  // Update class when clicking
+  useEffect(() => {
+    if (!cursorOuterRef.current || !cursorInnerRef.current) return;
+    
+    if (isClicking) {
+      cursorOuterRef.current.classList.add('cursor-clicking');
+      cursorInnerRef.current.classList.add('cursor-clicking');
+    } else {
+      cursorOuterRef.current.classList.remove('cursor-clicking');
+      cursorInnerRef.current.classList.remove('cursor-clicking');
+    }
+  }, [isClicking]);
+
   if (!isMounted) return null;
 
   return (
     <>
-      <div 
-        className={`custom-cursor ${isClicking ? 'clicking' : ''} ${isVisible ? 'visible' : 'invisible'}`}
-        style={{
-          transform: `translate(${position.x}px, ${position.y}px)`,
-        }}
-      />
-      <div 
-        className={`cursor-follower ${isClicking ? 'clicking' : ''} ${isVisible ? 'visible' : 'invisible'}`}
-        style={{
-          transform: `translate(${followerPosition.x - 18}px, ${followerPosition.y - 18}px)`,
-        }}
-      />
+      <style jsx global>{`
+        * {
+          cursor: none !important;
+        }
+        
+        .cursor-outer {
+          position: fixed;
+          width: 30px;
+          height: 30px;
+          border: 1px solid #D0F0C0;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9999;
+          transform: translate(-50%, -50%);
+          transition: width 0.2s ease, height 0.2s ease, transform 0.2s ease;
+        }
+        
+        .cursor-inner {
+          position: fixed;
+          width: 6px;
+          height: 6px;
+          background-color: #D0F0C0;
+          border-radius: 50%; 
+          pointer-events: none;
+          z-index: 9999;
+          transform: translate(-50%, -50%);
+        }
+        
+        .cursor-clicking {
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+        
+        a:hover ~ .cursor-outer,
+        button:hover ~ .cursor-outer,
+        input:hover ~ .cursor-outer,
+        textarea:hover ~ .cursor-outer {
+          width: 40px;
+          height: 40px;
+          border-color: #D0F0C0;
+        }
+      `}</style>
+
+      <div ref={cursorOuterRef} className="cursor-outer" />
+      <div ref={cursorInnerRef} className="cursor-inner" />
     </>
   );
 };

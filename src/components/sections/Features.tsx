@@ -38,7 +38,7 @@ export const Features = () => {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: false, margin: "-100px" }}
         >
           {features.map((feature, index) => (
             <motion.div

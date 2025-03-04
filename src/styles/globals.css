@@ -43,53 +43,6 @@ h1, h2, h3, h4, h5, h6 {
   cursor: none !important;
 }
 
-.custom-cursor {
-  position: fixed;
-  width: 12px;
-  height: 12px;
-  background-color: var(--mint);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  /* Reduced transition for immediate response */
-  transition: transform 0.05s linear;
-  mix-blend-mode: difference;
-  will-change: transform;
-}
-
-.cursor-follower {
-  position: fixed;
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid var(--mint);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  opacity: 0.6;
-  /* Slightly longer transition for trailing effect */
-  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
-  will-change: transform;
-}
-
-.clicking {
-  transform: scale(0.8) !important;
-}
-
-a:hover ~ .custom-cursor,
-button:hover ~ .custom-cursor,
-input:hover ~ .custom-cursor,
-textarea:hover ~ .custom-cursor {
-  transform: scale(1.5);
-}
-
-a:hover ~ .cursor-follower,
-button:hover ~ .cursor-follower,
-input:hover ~ .cursor-follower,
-textarea:hover ~ .cursor-follower {
-  transform: scale(1.5);
-  opacity: 0.3;
-}
-
 /* End Custom Cursor Styles */
 
 .grid-bg {

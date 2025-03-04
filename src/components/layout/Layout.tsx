@@ -1,11 +1,13 @@
-// src/components/layout/Layout.tsx
 import { ReactNode } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import dynamic from 'next/dynamic';
 
-// Import the CustomCursor component with SSR disabled
-const ClientCursor = dynamic(() => import('../ui/CustomCursor'), { ssr: false });
+// Import the CustomCursor component with SSR disabled and no loading indication
+const ClientCursor = dynamic(() => import('../ui/CustomCursor'), { 
+  ssr: false,
+  loading: () => null
+});
 
 interface LayoutProps {
   children: ReactNode;

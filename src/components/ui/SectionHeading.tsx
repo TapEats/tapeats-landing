@@ -1,4 +1,3 @@
-// src/components/ui/SectionHeading.tsx
 import { motion } from 'framer-motion';
 
 interface SectionHeadingProps {
@@ -23,7 +22,7 @@ export const SectionHeading = ({
           className="text-mint font-semibold uppercase tracking-wider text-sm"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 0.6 }}
         >
           {subtitle}
@@ -36,7 +35,7 @@ export const SectionHeading = ({
         className="text-4xl md:text-5xl font-heading mb-6"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
         {title}
@@ -51,7 +50,7 @@ export const SectionHeading = ({
           className="text-muted text-lg max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {description}
